@@ -1,1 +1,2 @@
 # Ignore credentials and external data
+*.pem
