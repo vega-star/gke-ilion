@@ -5,10 +5,25 @@
 First, we can test the application on our system by making sure we install the requirements of the application:
 
 ```sh
-   pip install -r .\application\requirements.txt
+  pip install -r .\application\requirements.txt
 ```
 
-Now, to test our pipeline, a simple push to branch will trigger a series of tests. The credentials of the service account is supposed to be stored as a secret in the repo, loaded with GitHub Actions. As the deploy action is part of a production environment, the **'terraform apply' action will be safely waiting for approval**, so you don't waste resources while testing this setup.
+Now, to test our pipeline, a simple push to branch will trigger a series of tests. The credentials of the service account is supposed to be stored as a secret in the repo, loaded with GitHub Actions. If you want to test the access locally, you can use the same .json stored in the secret and load to your environment with the command below:
+
+#### POWERSHELL
+
+```powershell
+  $env:GOOGLE_APPLICATION_CREDENTIALS=(Get-Item credentials.json).FullName
+```
+
+#### BASH
+
+```sh
+  export GOOGLE_APPLICATION_CREDENTIALS=$(realpath credentials.json)
+```
+
+> [!IMPORTANT]
+> As the deploy action is part of a production environment, the **'terraform apply' action will be safely waiting for approval**, so you don't waste resources while testing this setup.
 
 ## Infrastructure
 
