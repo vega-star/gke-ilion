@@ -34,3 +34,11 @@ variable "DB_HIGH_AVAILABILITY" {
   description = "Optional parameter. Defaults to false."
   default = false
 }
+
+variable "USED_API_LIST" {
+  description ="The list of apis necessary for the project to function. This prevents errors when planning infrastructure in a new, clean project."
+  type = list(string)
+  default = [
+    "compute.googleapis.com"
+  ]
+}

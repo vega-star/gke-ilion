@@ -1,9 +1,8 @@
-name: 'Infrastructure'
+name: 'Main pipeline'
 
 on:
     push:
         branches: [ "main "]
-    pull_request:
 
 permissions:
     contents: read

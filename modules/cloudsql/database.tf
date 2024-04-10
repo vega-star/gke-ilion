@@ -4,6 +4,8 @@ resource "google_compute_global_address" "db-private-ip-address" {
   address_type  = "INTERNAL"
   prefix_length = 16
   network       = data.google_compute_network.ilion-vpc-network.id
+
+  depends_on = [ data.google_compute_network.ilion-vpc-network ]
 }
 
 resource "google_sql_database_instance" "db_instance" {

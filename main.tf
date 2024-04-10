@@ -1,3 +1,4 @@
+//SETUP
 provider "google" {
   project     = var.PROJECT_ID
   region      = var.SELECTED_REGION
@@ -7,12 +8,19 @@ data "google_service_account" "terraform_service_account" { # The service accoun
   account_id = var.TF_SERVICE_ACCOUNT_ID
 }
 
-//[!] MODULES SECTION
-# Each service usage in this project is divided within separated modules for clear reference
+resource "google_project_service" "gcp_services" {
+  for_each = toset(var.USED_API_LIST)
+  project = var.PROJECT_ID
+  service = each.key
+}
+
+// MODULES
 module "vpc"{
   source = "./modules/vpc"
 
   PROJECT_ID = var.PROJECT_ID
+
+  depends_on = [ google_project_service.gcp_services ]
 }
 
 module "gke" {
@@ -32,6 +40,3 @@ module "cloudsql" {
   DB_PASSWORD = var.DB_PASSWORD
   DB_HIGH_AVAILABILITY = var.DB_HIGH_AVAILABILITY
 }
-
-//[!] FINAL INFRASTRUCTURE
-# Connecting each service from each module into a final infrastructure

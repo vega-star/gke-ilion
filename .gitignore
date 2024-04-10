@@ -1,4 +1,8 @@
 # Ignore credentials and external data
 *.pem
+
+*.tfvars
+!template.tfvars
+
 credentials.json
 .terraform/providers/*
