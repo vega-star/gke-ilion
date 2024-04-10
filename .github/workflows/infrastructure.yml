@@ -18,19 +18,19 @@ jobs:
         steps: 
         ## Checkout repo to Github Actions runner
         - name: Checkout
-          uses: actions/checkout@v4
+          uses: actions/checkout@v4.1.1
         ## Setup Terraform into the runner
         - name: Setup terraform
           uses: hashicorp/setup-terraform@v1
         ## Initialize Terraform
         - name: Terraform init
-          uses: terraform init
+          run: terraform init
         ## Check format to canonical (Prevents reading issues in ubuntu)
         - name: Terraform format
-          uses: terraform -fmt check
+          run: terraform -fmt check
         ## Terraform plan
         - name: Terraform plan
-          uses: terraform plan
+          run: terraform plan
           env:
                 GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
     
@@ -45,6 +45,6 @@ jobs:
         steps:
         ## Terraform apply
         - name: Terraform apply
-          uses: terraform apply -auto-approve -input=false
+          run: terraform apply -auto-approve -input=false
           env:
                 GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
