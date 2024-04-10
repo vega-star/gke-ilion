@@ -3,9 +3,9 @@ resource "google_compute_global_address" "db-private-ip-address" {
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
-  network       = data.google_compute_network.ilion-vpc-network.id
+  network       = google_compute_network.ilion-vpc-network.id
 
-  depends_on = [ data.google_compute_network.ilion-vpc-network ]
+  depends_on = [ google_compute_network.ilion-vpc-network ]
 }
 
 resource "google_sql_database_instance" "db_instance" {

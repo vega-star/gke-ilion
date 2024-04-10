@@ -36,9 +36,15 @@ variable "DB_HIGH_AVAILABILITY" {
 }
 
 variable "USED_API_LIST" {
-  description ="The list of apis necessary for the project to function. This prevents errors when planning infrastructure in a new, clean project."
   type = list(string)
+  description ="The list of apis necessary for the project to function. This prevents errors when planning infrastructure in a new, clean project."
   default = [
     "compute.googleapis.com"
   ]
+}
+
+variable "VPC_NAME" {
+  type = string
+  description = "Name of the VPC used by the core module"
+  default = "ilion-vpc-network"
 }

@@ -3,7 +3,3 @@ data "google_service_account_access_token" "kubernetes_access_token" {
   scopes                 = ["userinfo-email", "cloud-platform"]
   lifetime               = "3600s"
 }
-
-data "google_compute_network" "ilion-vpc-network" {
-  name = "ilion-vpc-network"
-}

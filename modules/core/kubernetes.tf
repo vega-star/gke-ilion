@@ -1,3 +1,7 @@
+// TERRAFORM TO KUBERNETES
+// DOCUMENTATION: https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/using_gke_with_terraform
+// This section modifies our GKE cluster into our desired configuration, then loads our application into it
+
 provider "kubernetes" {
   host  = "https://${google_container_cluster.main_cluster.endpoint}"
   token = data.google_service_account_access_token.kubernetes_access_token.access_token
@@ -18,7 +22,7 @@ resource "kubernetes_namespace" "master" {
 }
 
 resource "google_compute_address" "service-ip" {
-  name   = data.google_compute_network.ilion-vpc-network.name
+  name   = google_compute_network.ilion-vpc-network.name
   region = var.SELECTED_REGION
 }
 
@@ -87,8 +91,4 @@ resource "kubernetes_replication_controller" "parking-application-controller" {
       }
     }
   }
-}
-
-output "load-balancer-ip" {
-  value = google_compute_address.service-ip.address
 }
