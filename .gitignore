@@ -1,2 +1,4 @@
 # Ignore credentials and external data
 *.pem
+credentials.json
+.terraform/providers/*
