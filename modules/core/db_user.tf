@@ -4,12 +4,8 @@ resource "random_password" "db_password" { # Generated default DB password
     override_special = "!#$%&*()-_=+[]{}<>:"
 }
 
-locals {
-  db_password = var.DB_PASSWORD != "" ? var.DB_PASSWORD : random_password.db_password.result
-}
-
 resource "google_sql_user" "db_user" {
-  name     = "ilion_db_user"
+  name     = var.DB_ROOT_USERNAME
   instance = google_sql_database_instance.db_instance.name
-  password = var.DB_PASSWORD
+  password = "${var.DB_PASSWORD != "" ? var.DB_PASSWORD : random_password.db_password.result}" # If unset, will choose the random generated one
 }

@@ -8,7 +8,7 @@ The infrastructure of this project consists mainly of:
 - A GKE cluster running the application
 - A load balancer to serve the application
 - A single Cloud SQL instance providing the database to the application
-- A CI/CD pipeline
+- A CI/CD pipeline to test and assure the activity of each component
 
 ## Application
 
@@ -18,9 +18,9 @@ Firstly, we make sure we install the requirements of the application:
   pip install -r .\application\requirements.txt
 ```
 
-## Pipeline
+## Deploy
 
-To make sure terraform knows what to do, we need to populate our variables, so I left 'template.tfvars' to facilitate the process:
+To make sure terraform knows what to do, we need to populate our variables, so I left 'template.tfvars' to facilitate the process. Open the file, modify the values with their respective types, and then rename the file to 'terraform.tfvars':
 
 ```bash
   PROJECT_ID = [string]
@@ -33,18 +33,14 @@ To make sure terraform knows what to do, we need to populate our variables, so I
 > [!WARNING]
 > .tfvars can store sensible data, so make sure to rename 'template.tfvars' to 'terraform.tfvars', so git will ignore it.
 
-To test our pipeline, a simple push to branch will trigger a series of tests. The credentials of the service account is supposed to be stored as a secret in the repo, loaded with GitHub Actions. If you want to test the access locally, you can use the same .json stored in the secret and load to your environment with the command below:
+To test our pipeline, a simple push to branch will trigger a series of tests. The credentials of the service account is supposed to be stored as a secret in the repo, loaded with GitHub Actions. Locally, you can add the credentials of the service account as an environment variable. I left the commands below to help you with that:
 
-#### POWERSHELL
+```bash
+  # | POWERSHELL
+  $env:GOOGLE_APPLICATION_CREDENTIALS=(Get-Item credentials.json).FullName  
 
-```powershell
-  $env:GOOGLE_APPLICATION_CREDENTIALS=(Get-Item credentials.json).FullName
-```
-
-#### BASH
-
-```sh
-  export GOOGLE_APPLICATION_CREDENTIALS=$(realpath credentials.json)
+  # | BASH
+  export GOOGLE_APPLICATION_CREDENTIALS=$(realpath ./credentials.json)
 ```
 
 > [!IMPORTANT]

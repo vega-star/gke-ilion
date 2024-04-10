@@ -12,6 +12,8 @@ resource "google_sql_database_instance" "db_instance" {
   name = "ilion-db-instance"
   region = var.SELECTED_REGION
   database_version = "POSTGRES_14"
+  root_password = var.DB_PASSWORD
+
   settings {
     tier = var.DB_INSTANCE_TIER
   }

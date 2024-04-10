@@ -1,49 +1,82 @@
 name: 'Main pipeline'
 
-on:
-    push:
-        branches: [ "main "]
+on: push
 
-permissions:
-    contents: read
+env:
+  GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+  IMAGE: "parking_application"
+  DEPLOYMENT_NAME: "deploy_test"
 
 jobs:
-    integrity:
-        name: 'Integrity test'
+    application:
+        name: 'Application build and access test'
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                shell: bash
+        steps:
+        # Build the Docker image of the application
+        - name: Build image
+          run: docker build \
+            --build-arg GITHUB_SHA="$GITHUB_SHA" \
+            --build-arg GITHUB_REF="$GITHUB_REF" \
+            .application/
+
+        # Push the Docker image to Google Container Registry
+        - name: Publish
+          run: docker push "gcr.io/${gcloud config get-value project}/$IMAGE:$GITHUB_SHA"
+        
+        # Quickly install kustomize (~25mb)
+        - name: Install Kustomize
+          run: |-
+            curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
+            chmod u+x ./kustomize
+
+    terraform:
+        name: 'Terraform integrity test'
+        environment: 'dev'
         runs-on: ubuntu-latest
         defaults:
             run:
                 shell: bash
         steps: 
-        ## Checkout repo to Github Actions runner
+        # Checkout repo to Github Actions runner
         - name: Checkout
           uses: actions/checkout@v4.1.1
-        ## Setup Terraform into the runner
+        
+        # Setup Terraform into the runner
         - name: Setup terraform
           uses: hashicorp/setup-terraform@v1
-        ## Initialize Terraform
+        
+        # Initialize Terraform
         - name: Terraform init
           run: terraform init
-        ## Check format to canonical (Prevents reading issues in ubuntu)
+        
+        # Check format to canonical (Prevents reading issues in ubuntu)
         - name: Terraform format
           run: terraform -fmt check
-        ## Terraform plan
+        
+        # Terraform plan
         - name: Terraform plan
           run: terraform plan
-          env:
-                GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
     
     deploy:
         name: 'Deploy infrastructure'
         runs-on: ubuntu-latest
         environment: 'prod'
-        needs: [ integrity ]
+        needs: [ terraform ]
         defaults:
           run:
               shell: bash
         steps:
-        ## Terraform apply
+        # Terraform apply
         - name: Terraform apply
           run: terraform apply -auto-approve -input=false
-          env:
-                GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+        
+        # Deploy application
+        - name: Deploy application
+          run: |-
+            ./kustomize edit set image gcr.io/PROJECT_ID/IMAGE:TAG=gcr.io/${gcloud config get-value project}/$IMAGE:$GITHUB_SHA
+            ./kustomize build . | kubectl apply -f -
+            kubectl rollout status deployment/$DEPLOYMENT_NAME
+            kubectl get services -o wide

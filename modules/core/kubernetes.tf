@@ -1,4 +1,4 @@
-// TERRAFORM TO KUBERNETES
+// TERRAFORM TO KUBERNETES / GKE
 // DOCUMENTATION: https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/using_gke_with_terraform
 // This section modifies our GKE cluster into our desired configuration, then loads our application into it
 
@@ -15,26 +15,28 @@ provider "kubernetes" {
   }
 }
 
-resource "kubernetes_namespace" "master" {
+provider "kubectl" {
+  host = google_container_cluster.main_cluster.endpoint
+  cluster_ca_certificate = base64decode(google_container_cluster.main_cluster.master_auth.0.cluster_ca_certificate)
+  token = data.google_service_account_access_token.kubernetes_access_token.access_token
+  load_config_file = false
+}
+
+resource "kubernetes_namespace" "default" { # Namespace
   metadata {
-    name = "master"
+    name = var.KUBERNETES_NAMESPACE
   }
 }
 
-resource "google_compute_address" "service-ip" {
-  name   = google_compute_network.ilion-vpc-network.name
-  region = var.SELECTED_REGION
-}
-
-resource "kubernetes_service" "parking-application" {
+resource "kubernetes_service" "application-service" { # Aplication service including load balancer
   metadata {
-    namespace = kubernetes_namespace.master.metadata[0].name
-    name      = "parking-application"
+    namespace = kubernetes_namespace.default.metadata.0.name
+    name      = var.KUBERNETES_APPLICATION_ID
   }
 
   spec {
     selector = {
-      run = "parking-application"
+      run = var.KUBERNETES_APPLICATION_ID
     }
 
     session_affinity = "ClientIP"
@@ -51,31 +53,31 @@ resource "kubernetes_service" "parking-application" {
   }
 }
 
-resource "kubernetes_replication_controller" "parking-application-controller" {
+resource "kubernetes_replication_controller" "application-controller" { # Application controller
     metadata {
-        name      = "parking-application"
-        namespace = kubernetes_namespace.master.metadata[0].name
+        name      = var.KUBERNETES_APPLICATION_ID
+        namespace = kubernetes_namespace.default.metadata[0].name
 
         labels = {
-            run = "parking-application"
+            run = var.KUBERNETES_APPLICATION_ID
         }
     }
 
     spec {
     selector = {
-      test = "parking-application"
+      test = var.KUBERNETES_APPLICATION_ID
     }
     template {
       metadata {
         labels = {
-          test = "parking-application"
+          test = var.KUBERNETES_APPLICATION_ID
         }
       }
 
       spec {
         container {
           image = "parking.wsgi:application"
-          name  = "parking-application"
+          name  = var.KUBERNETES_APPLICATION_ID
 
           resources {
             limits = {

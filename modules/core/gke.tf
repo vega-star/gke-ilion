@@ -11,7 +11,7 @@ resource "google_container_cluster" "main_cluster" {
   initial_node_count       = 1
 }
 
-resource "google_container_node_pool" "primary_preemptible_nodes" {
+resource "google_container_node_pool" "primary_nodes" {
   name       = "main-pool"
   location   = var.SELECTED_REGION
   cluster    = google_container_cluster.main_cluster.name
