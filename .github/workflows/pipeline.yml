@@ -1,0 +1,50 @@
+name: 'Infrastructure'
+
+on:
+    push:
+        branches: [ "main "]
+    pull_request:
+
+permissions:
+    contents: read
+
+jobs:
+    integrity:
+        name: 'Integrity test'
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                shell: bash
+        steps: 
+        ## Checkout repo to Github Actions runner
+        - name: Checkout
+          uses: actions/checkout@v4.1.1
+        ## Setup Terraform into the runner
+        - name: Setup terraform
+          uses: hashicorp/setup-terraform@v1
+        ## Initialize Terraform
+        - name: Terraform init
+          run: terraform init
+        ## Check format to canonical (Prevents reading issues in ubuntu)
+        - name: Terraform format
+          run: terraform -fmt check
+        ## Terraform plan
+        - name: Terraform plan
+          run: terraform plan
+          env:
+                GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+    
+    deploy:
+        name: 'Deploy infrastructure'
+        runs-on: ubuntu-latest
+        environment: 'prod'
+        needs: [ integrity ]
+        defaults:
+          run:
+              shell: bash
+        steps:
+        ## Terraform apply
+        - name: Terraform apply
+          run: terraform apply -auto-approve -input=false
+          env:
+                GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
