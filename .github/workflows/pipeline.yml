@@ -30,7 +30,7 @@ jobs:
         
         # Check format to canonical (Prevents reading issues in ubuntu)
         - name: Terraform format
-          run: terraform -fmt check
+          run: terraform fmt -check
         
         # Terraform plan
         - name: Terraform plan
