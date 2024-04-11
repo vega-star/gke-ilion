@@ -34,11 +34,10 @@ jobs:
           with:
             terraform_wrapper: false
 
-        # Iterate through each variable on secret tfvars and reformat data if needed
+        # Iterate through each variable on secret tfvars and reformat data if needed. 
+        # Importing .tfvars from secret drops the values double quotes, a regex solve the issue adding them back! Also, after formatting, the values matches exactly the secrets thus is hidden from action logs. Great.
         - name: Variable iteration
-          run: |
-            for v in "${{ secrets.TF_VARS }}"; do echo -e "$v" | sed 's/\(=[[:blank:]]*\)\(.*\)/\1"\2"/' >> terraform.tfvars; done
-            cat terraform.tfvars
+          run: for v in "${{ secrets.TF_VARS }}"; do echo -e "$v" | sed 's/\(=[[:blank:]]*\)\(.*\)/\1"\2"/' >> terraform.tfvars; done
         
         # Initialize Terraform
         - name: Terraform init
