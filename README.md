@@ -84,6 +84,7 @@ Before deploying with Terraform, we need to make slight manual changes in the pr
   # In case you're having trouble during deployment due to APIs not activating from Terraform, execute this too
   gcloud services enable "compute.googleapis.com"
   gcloud services enable "artifactregistry.googleapis.com"
+  gcloud services enable "cloudresourcemanager.googleapis.com"
   gcloud services enable "containerregistry.googleapis.com"
   gcloud services enable "container.googleapis.com"
   gcloud services enable "iam.googleapis.com"
