@@ -27,10 +27,10 @@ jobs:
           with:
             terraform_wrapper: false
         
-        # Add .tfvars to the process
+        # Download .tfvars from a secure source only accessible with the service account
         - name: Add secret variables
           run: |
-            echo -e "${{ env.TF_VARS }}" >> terraform.tfvars
+            gsutil cp gs://tf-source-data/terraform.tfvars .
 
         # Initialize Terraform
         - name: Terraform init
