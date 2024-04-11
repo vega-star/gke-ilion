@@ -143,10 +143,7 @@ jobs:
         
         # Build the Docker image of the application
         - name: Build image
-          run: docker buildx build . \
-            -t ${{ env.APPLICATION_NAME }} \
-            --build-arg GITHUB_SHA="${{ github.sha }}" \
-            --build-arg GITHUB_REF="${{ github.ref }}"
+          run: docker build -t ${{ env.APPLICATION_NAME }} --build-arg GITHUB_SHA="${{ github.sha }}" --build-arg GITHUB_REF="${{ github.ref }}" .
           working-directory: ./app/${{ env.APPLICATION_NAME }}
 
         # Configure local Docker client
