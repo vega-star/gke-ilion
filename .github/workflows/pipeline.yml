@@ -3,7 +3,6 @@ name: 'Main pipeline'
 on: push
 
 env:
-  TF_VARS: ${{ secrets.TF_VARS }}
   GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
   APPLICATION_NAME: "parking-application"
   DEFAULT_REGION: "us-central1"
@@ -28,7 +27,7 @@ jobs:
             terraform_wrapper: false
         
         # Download .tfvars from a secure source only accessible with the service account
-        - name: Add secret variables
+        - name: Catch secure variables
           run: |
             gsutil cp gs://tf-source-data/terraform.tfvars .
 
