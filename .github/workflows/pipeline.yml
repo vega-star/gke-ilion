@@ -3,7 +3,7 @@ name: 'Main pipeline'
 on: push
 
 env:
-  GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+  GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
   APPLICATION_NAME: "parking-application"
   DEFAULT_REGION: "us-central1"
 
