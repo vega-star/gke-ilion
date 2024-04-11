@@ -31,7 +31,6 @@ jobs:
         - name: Add secret variables
           run: |
             echo -e "${{ env.TF_VARS }}" >> terraform.tfvars
-            cat terraform.tfvars
 
         # Initialize Terraform
         - name: Terraform init
