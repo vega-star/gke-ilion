@@ -23,6 +23,8 @@ jobs:
         # Setup Terraform into the runner
         - name: Setup terraform
           uses: hashicorp/setup-terraform@v1
+          with:
+            terraform_wrapper: false
         
         # Initialize Terraform
         - name: Terraform init
@@ -34,7 +36,7 @@ jobs:
         
         # Terraform plan
         - name: Terraform plan
-          run: terraform plan
+          run: terraform plan -out terraform.plan
     
     infrastructure:
         name: 'Deploy infrastructure'
