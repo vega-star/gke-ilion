@@ -36,6 +36,7 @@ To make sure terraform knows what to do, we need to populate our variables, so I
   TF_SERVICE_ACCOUNT_ID = [string]
   DB_INSTANCE_TIER = [string]
   DB_HIGH_AVAILABILITY = [bool]
+  [...]
 ```
 
 > [!WARNING]

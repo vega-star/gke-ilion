@@ -3,6 +3,7 @@ name: 'Main pipeline'
 on: push
 
 env:
+  TF_VARS: ${{ secrets.TF_VARS }}
   GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
   APPLICATION_NAME: "parking-application"
   DEFAULT_REGION: "us-central1"
@@ -26,10 +27,12 @@ jobs:
           with:
             terraform_wrapper: false
         
-        # Download .tfvars from a secure source only accessible with the service account
+        # Catch .tfvars from a secure source
         - name: Catch secure variables
           run: |
-            gsutil cp gs://tf-source-data/terraform.tfvars .
+            cat > terraform.tfvars << EOF
+            ${{ secrets.TF_VARS }}
+            EOF
 
         # Initialize Terraform
         - name: Terraform init
@@ -37,10 +40,16 @@ jobs:
         
         # Format and check terraform files to canonical (Prevents reading issues in ubuntu, specially with the new .tfvars file)
         - name: Terraform format check
+          if: success() || failure()
           run: |
             terraform fmt
             terraform fmt -check
         
+        # Terraform validate
+        - name: Terraform validate
+          if: success() || failure()
+          run:  terraform validate -no-color
+
         # Terraform plan
         - name: Terraform plan
           run: terraform plan
