@@ -112,12 +112,12 @@ jobs:
         
         # Terraform outputs
         - id: terraform-outputs
-          name: Terraform outputs
+          name: Terraform outputs to env
           if: always()
           run: |
-            echo "ARTIFACT_REGISTRY=$(terraform output -raw artifact-registry-path)" >> $GITHUB_OUTPUT
-            echo "SHORT_ARTIFACT_REGISTRY=$(terraform output -raw artifact-registry-short-path)" >> $GITHUB_OUTPUT
-            echo "MAIN_GKE_CLUSTER=$(terraform output -raw main_gke_cluster)" >> $GITHUB_OUTPUT
+            echo "ARTIFACT_REGISTRY=${{ steps.terraform-apply.outputs.ARTIFACT_REGISTRY }}" >> $GITHUB_ENV
+            echo "SHORT_ARTIFACT_REGISTRY=${{ steps.terraform-apply.outputs.SHORT_ARTIFACT_REGISTRY }}" >> $GITHUB_ENV
+            echo "MAIN_GKE_CLUSTER=${{ steps.terraform-apply.outputs.MAIN_GKE_CLUSTER }}" >> $GITHUB_ENV
           working-directory: .terraform
           
       
@@ -151,13 +151,13 @@ jobs:
 
         # Configure local Docker client
         - name: Configure Docker
-          run: gcloud auth configure-docker ${{ steps.terraform_outputs.outputs.SHORT_ARTIFACT_REGISTRY }}
+          run: gcloud auth configure-docker ${{ env.SHORT_ARTIFACT_REGISTRY }}
         
         # Push the Docker image to Artifact Registry
         - name: Publish
           run: |
-            docker tag ${{ env.APPLICATION_NAME }} ${{ steps.terraform_outputs.outputs.ARTIFACT_REGISTRY }}/${{ env.APPLICATION_NAME }}
-            docker push ${{ steps.terraform_outputs.outputs.ARTIFACT_REGISTRY }}/${{ env.APPLICATION_NAME }}
+            docker tag ${{ env.APPLICATION_NAME }} ${{ env.ARTIFACT_REGISTRY }}/${{ env.APPLICATION_NAME }}
+            docker push ${{ env.SHORT_ARTIFACT_REGISTRY }}/${{ env.APPLICATION_NAME }}
       
     deploy:
         name: 'Deploy application'
@@ -181,11 +181,11 @@ jobs:
 
         # Catch existing cluster
         - name: Catch existing cluster
-          run: gcloud container clusters get-credentials ${{ steps.terraform_outputs.outputs.MAIN_GKE_CLUSTER }} --location ${{ env.DEFAULT_REGION }}
+          run: gcloud container clusters get-credentials ${{ env.MAIN_GKE_CLUSTER }} --location ${{ env.DEFAULT_REGION }}
 
         # Deploy on GKE
         - name: Deploy on GKE
-          run: kubectl create deployment ${{ env.APPLICATION_NAME }} --image=${{ steps.terraform_outputs.outputs.ARTIFACT_REGISTRY }}/${{ env.APPLICATION_NAME }}
+          run: kubectl create deployment ${{ env.APPLICATION_NAME }} --image=${{ env.ARTIFACT_REGISTRY }}/${{ env.APPLICATION_NAME }}
 
         # Expose cluster
         - name:
