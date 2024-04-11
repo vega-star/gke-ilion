@@ -1,6 +1,6 @@
 name: 'Clear deployments'
 
-on: [workflow_call, push]
+on: workflow_call
 
 jobs:
     cleanup:

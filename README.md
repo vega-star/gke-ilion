@@ -128,4 +128,4 @@ If all parts of the deploy are ready, we just have to commit and push to the rep
 
 ### Why the name Ilion?
 
-The name Ilion refers to the city of Troy, which had both names historically referenced between Ancient Greece and the Hittite Empire, the latter naming the place Wilios before. The reason is simply because I was reading about the history of Troy, just out of curiosity, during the development of this project.
+The name Ilion refers to the city of Troy, which had both names historically referenced between Ancient Greece and the Hittite Empire, the latter naming the place Wilios/Wilusa. The reason is simply because I was reading about the history of Troy, just out of curiosity, during the development of this project.
