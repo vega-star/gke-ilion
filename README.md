@@ -18,19 +18,11 @@ So, the logical route would be:
 4. Deploy the desired database via Terraform and provide the connection means to the application pods.
 5. Create an service account with needed permissions granted and use to process everything at once.
 
-## Application
-
-Firstly, we make sure we install the requirements of the application:
-
-```sh
-  pip install -r .\application\requirements.txt
-```
-
 ## Prepare
 
-Before deploying with Terraform, we need to make slight manual changes in the project first. But I've made sure you have the right commands to do it from Cloud Shell without even breaking a sweat.
+Before deploying with Terraform, we need to make slight manual changes in the project first. But I've made sure you have the right commands to do it from Cloud Shell without even breaking a sweat. You can copy and paste everything.
 
-```sh
+```bash
   # Export the variables to Cloud Shell environment
   # [!] REMEMBER TO EDIT THE FIRST VALUES TO MATCH TERRAFORM
   export PROJECT_ID=[[PROJECT_ID]] # Need input | No defaults
@@ -41,16 +33,12 @@ Before deploying with Terraform, we need to make slight manual changes in the pr
   export BUCKET_NAME="tf-source-data"
 
   gcloud config set project $PROJECT_ID
-```
-
-```sh
+  
   # STEP 1: Create a service account
   gcloud iam service-accounts create $SERVICE_ACCOUNT_NAME \
     --description="Service account used by Terraform to plan/deploy infrastructure" \
     --display-name=$SERVICE_ACCOUNT_NAME
-```
-
-```sh
+  
   # STEP 2: Grant the service account the necessary permissions
   gcloud iam service-accounts add-iam-policy-binding $SERVICE_ACCOUNT_EMAIL \
     --member=$SERVICE_ACCOUNT_EMAIL \
@@ -61,11 +49,9 @@ Before deploying with Terraform, we need to make slight manual changes in the pr
     --role="roles/iam.serviceAccountUser"
   
   gcloud iam service-accounts add-iam-policy-binding $SERVICE_ACCOUNT_EMAIL \
-    --member="$SERVICE_ACCOUNT_EMAIL \
+    --member=$SERVICE_ACCOUNT_EMAIL \
     --role="roles/iam.serviceAccountTokenCreator"
-```
-
-```sh
+  
   # STEP 3: Create the bucket that serves as the backend for Terraform
   gcloud storage buckets create gs://$BUCKET_NAME \
     --project=${PROJECT_ID} \
@@ -77,11 +63,9 @@ Before deploying with Terraform, we need to make slight manual changes in the pr
   gcloud storage buckets add-iam-policy-binding gs://$BUCKET_NAME \
     --member=$SERVICE_ACCOUNT_EMAIL \
     --role="roles/storage.objectAdmin"
-```
-
-```sh
+  
   # STEP 4 (OPTIONAL): Activate the needed APIs manually
-  # In case you're having trouble during deployment due to APIs not activating from Terraform, execute this too
+  # In case you're having trouble during deployment due to APIs not activating from Terraform, execute this:
   gcloud services enable "compute.googleapis.com"
   gcloud services enable "artifactregistry.googleapis.com"
   gcloud services enable "cloudresourcemanager.googleapis.com"

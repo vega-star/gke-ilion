@@ -1,6 +1,6 @@
 name: 'Main pipeline'
 
-on: [workflow_call, push]
+on: workflow_dispatch
 
 env:
   TF_VARS: ${{ secrets.TF_VARS }}
@@ -113,11 +113,12 @@ jobs:
         # Terraform outputs
         - id: terraform-outputs
           name: Terraform outputs
+          if: success() || failure()
           run: |
             echo "ARTIFACT_REGISTRY=$(terraform output -raw artifact-registry-path)" >> $GITHUB_OUTPUT
             echo "SHORT_ARTIFACT_REGISTRY=$(terraform output -raw artifact-registry-short-path)" >> $GITHUB_OUTPUT
             echo "MAIN_GKE_CLUSTER=$(terraform output -raw main_gke_cluster)" >> $GITHUB_OUTPUT
-          working-directory: ./terraform
+          working-directory: .terraform
       
     application:
         name: 'Load application'
