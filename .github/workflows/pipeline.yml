@@ -108,7 +108,7 @@ jobs:
         # Terraform apply
         - id: terraform-apply
           name: Terraform apply
-          run: terraform apply tfplan -auto-approve -input=false
+          run: terraform apply tfplan --auto-approve -input=false
         
         # Terraform outputs
         - id: terraform-outputs
