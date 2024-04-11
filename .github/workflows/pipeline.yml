@@ -90,7 +90,7 @@ jobs:
         - name: Setup terraform
           uses: hashicorp/setup-terraform@v1
           with:
-            terraform_wrapper: false
+            terraform_wrapper: true
 
         # Re-initialize Terraform
         - name: Terraform init
@@ -115,9 +115,9 @@ jobs:
           name: Terraform outputs to env
           if: always()
           run: |
-            echo "ARTIFACT_REGISTRY=${{ steps.terraform-apply.outputs.ARTIFACT_REGISTRY }}" >> $GITHUB_ENV
-            echo "SHORT_ARTIFACT_REGISTRY=${{ steps.terraform-apply.outputs.SHORT_ARTIFACT_REGISTRY }}" >> $GITHUB_ENV
-            echo "MAIN_GKE_CLUSTER=${{ steps.terraform-apply.outputs.MAIN_GKE_CLUSTER }}" >> $GITHUB_ENV
+            echo "ARTIFACT_REGISTRY=${{ steps.terraform-apply.outputs.artifact-registry-path }}" >> $GITHUB_ENV
+            echo "SHORT_ARTIFACT_REGISTRY=${{ steps.terraform-apply.outputs.artifact-registry-short-path }}" >> $GITHUB_ENV
+            echo "MAIN_GKE_CLUSTER=${{ steps.terraform-apply.outputs.main_gke_cluster }}" >> $GITHUB_ENV
           working-directory: .terraform
           
       
@@ -148,7 +148,7 @@ jobs:
 
         # Configure local Docker client
         - name: Configure Docker
-          run: gcloud auth configure-docker ${{ env.SHORT_ARTIFACT_REGISTRY }}
+          run: gcloud auth configure-docker ${{ env.SHORT_ARTIFACT_REGISTRY }} --quiet
         
         # Push the Docker image to Artifact Registry
         - name: Publish
