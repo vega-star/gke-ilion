@@ -57,7 +57,14 @@ jobs:
 
         # Terraform plan
         - name: Terraform plan
-          run: terraform plan -input=false -var-file=terraform.tfvars -out=tfplan
+          run: terraform plan -input=false --var-file=terraform.tfvars -out=tfplan
+        
+        # Save plan as Artifact
+        - name: Plan artifact
+          uses: actions/upload-artifact@v2
+          with:
+            name: plan-artifact
+            path: tfplan
     
     infrastructure:
         name: 'Deploy infrastructure'
@@ -68,6 +75,11 @@ jobs:
           run:
               shell: bash
         steps:
+        # Download plan from Artifact
+        - uses: actions/download-artifact@v2
+          with:
+            name: plan-artifact
+
         # Check tfplan
         - name: Check tfplan
           run: terraform show tfplan
