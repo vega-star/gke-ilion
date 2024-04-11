@@ -12,6 +12,8 @@ resource "google_project_service" "gcp_services" {
   for_each = toset(var.USED_API_LIST)
   project  = var.PROJECT_ID
   service  = each.key
+
+  disable_dependent_services = true
 }
 
 // CORE
