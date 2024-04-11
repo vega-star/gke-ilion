@@ -125,7 +125,7 @@ After a terraform plan, even locally, we expect to see .tfstate loaded on the ba
   <img src="assets\bucket-print.png" />
 </p>
 
-If all parts of the deploy are ready, we just have to commit and push to the repository to start the pipeline. All else besides infrastructure is to be dealt in the **'pipeline.yml'** file. As the deploy action is part of a production environment, the **'terraform apply' action will be safely waiting for approval**, so you don't waste resources while testing this setup.
+If all parts of the deploy are ready, we just have to commit and push to the repository to start the pipeline. All else besides infrastructure is to be dealt in the **'pipeline.yml'** file. As the deploy action is part of a production environment, the **'terraform apply' action will be safely waiting for approval**, so you don't waste resources while testing this setup. The deploy secion can take ~15 min to finish, so be patient.
 
 ## Conclusion
 

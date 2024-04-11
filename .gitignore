@@ -1,8 +1,6 @@
 # Ignore credentials and external data
 *.pem
 
-act.ext
-
 *.tfvars
 !template.tfvars
 

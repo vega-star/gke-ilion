@@ -18,7 +18,7 @@ resource "google_sql_database_instance" "db_instance" {
     tier = var.DB_INSTANCE_TIER
   }
 
-  deletion_protection  = "true"
+  deletion_protection  = "false"
 }
 
 resource "google_sql_database" "database" {
