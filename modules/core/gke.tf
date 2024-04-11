@@ -4,7 +4,7 @@
 
 resource "google_container_cluster" "main_cluster" {
   project = var.PROJECT_ID
-  name     = "my-gke-cluster"
+  name     = "main-cluster"
   location = "us-central1"
 
   remove_default_node_pool = true

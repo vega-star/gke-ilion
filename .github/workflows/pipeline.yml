@@ -5,6 +5,7 @@ on: push
 env:
   GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
   APPLICATION_NAME: "parking-application"
+  DEFAULT_REGION: "us-central1"
 
 jobs:
     terraform:
@@ -35,7 +36,7 @@ jobs:
         - name: Terraform plan
           run: terraform plan
     
-    deploy:
+    infrastructure:
         name: 'Deploy infrastructure'
         runs-on: ubuntu-latest
         environment: 'prod'
@@ -53,14 +54,16 @@ jobs:
         - id: terraform-outputs
           name: Terraform outputs
           run: |
-            echo "ARTIFACT_REGISTRY=$(terraform output -raw artifact_registry_id)" >> $GITHUB_OUTPUT
+            echo "ARTIFACT_REGISTRY=$(terraform output -raw artifact-registry-path)" >> $GITHUB_OUTPUT
+            echo "SHORT_ARTIFACT_REGISTRY=$(terraform output -raw artifact-registry-short-path)" >> $GITHUB_OUTPUT
+            echo "MAIN_GKE_CLUSTER=$(terraform output -raw main_gke_cluster)" >> $GITHUB_OUTPUT
           working-directory: ./terraform
       
     application:
-        name: 'Deploy application'
+        name: 'Load application'
         runs-on: ubuntu-latest
         environment: 'dev'
-        needs: [ deploy ]
+        needs: [ infrastructure ]
         defaults:
             run:
                 shell: bash
@@ -73,12 +76,36 @@ jobs:
             --build-arg GITHUB_REF="$GITHUB_REF"
           working-directory: ./app
 
+        # Configure local Docker client
+        - name: Configure Docker
+          run: gcloud auth configure-docker ${{ steps.terraform_outputs.outputs.SHORT_ARTIFACT_REGISTRY }}
+        
         # Push the Docker image to Google Container Registry
         - name: Publish
-          run: docker push ${{ steps.terraform_outputs.outputs.ARTIFACT_REGISTRY }}
-        
-        # Quickly install kustomize (~25mb)
-        - name: Install Kustomize
           run: |
-            curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
-            chmod u+x ./kustomize
+            docker tag ${{ env.APPLICATION_NAME }} ${{ steps.terraform_outputs.outputs.ARTIFACT_REGISTRY }}/${{ env.APPLICATION_NAME }}
+            docker push ${{ steps.terraform_outputs.outputs.ARTIFACT_REGISTRY }}/${{ env.APPLICATION_NAME }}
+      
+    deploy:
+        name: 'Deploy application'
+        runs-on: ubuntu-latest
+        environment: 'prod'
+        needs: [ infrastructure, application ]
+        defaults:
+          run:
+              shell: bash
+        steps:
+        # Catch existing cluster
+        - name: Catch existing cluster
+          run: gcloud container clusters get-credentials ${{ steps.terraform_outputs.outputs.MAIN_GKE_CLUSTER }} --location ${{ env.DEFAULT_REGION }}
+
+        # Deploy on GKE
+        - name: Deploy on GKE
+          run: kubectl create deployment ${{ env.APPLICATION_NAME }} --image=${{ steps.terraform_outputs.outputs.ARTIFACT_REGISTRY }}/${{ env.APPLICATION_NAME }}
+
+        # Expose cluster
+        - name:
+          run: kubectl expose deployment ${{ env.APPLICATION_NAME }} \
+            --type LoadBalancer \
+            --port 80 \
+            --target-port 5003

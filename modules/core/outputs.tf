@@ -2,6 +2,14 @@ output "load-balancer-ip" {
   value = google_compute_address.service-ip.address
 }
 
-output "artifact-registry-id" {
-  value = google_artifact_registry_repository.service_repo.id
+output "main_gke_cluster" {
+  value = google_container_cluster.main_cluster.name
+}
+
+output "artifact-registry-short-path" {
+  value = "${var.SELECTED_LOCATION}-docker.pkg.dev"
+}
+
+output "artifact-registry-path" {
+  value = "${var.SELECTED_LOCATION}-docker.pkg.dev/${var.PROJECT_ID}/${var.GCR_REPOSITORY_ID}"
 }
