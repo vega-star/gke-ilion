@@ -143,7 +143,7 @@ jobs:
         
         # Build the Docker image of the application
         - name: Build image
-          run: docker build . \
+          run: docker buildx build . \
             -t ${{ env.APPLICATION_NAME }} \
             --build-arg GITHUB_SHA="$GITHUB_SHA" \
             --build-arg GITHUB_REF="$GITHUB_REF"
