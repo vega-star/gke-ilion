@@ -118,7 +118,6 @@ jobs:
             echo "ARTIFACT_REGISTRY=${{ steps.terraform-apply.outputs.artifact-registry-path }}" >> $GITHUB_ENV
             echo "SHORT_ARTIFACT_REGISTRY=${{ steps.terraform-apply.outputs.artifact-registry-short-path }}" >> $GITHUB_ENV
             echo "MAIN_GKE_CLUSTER=${{ steps.terraform-apply.outputs.main_gke_cluster }}" >> $GITHUB_ENV
-          working-directory: .terraform
           
       
     application:
