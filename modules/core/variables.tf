@@ -8,6 +8,10 @@ variable "TF_SERVICE_ACCOUNT_ID" {
   type = string
 }
 
+variable "SELECTED_LOCATION" {
+  type = string
+}
+
 variable "SELECTED_REGION" {
   type = string
 }
@@ -36,10 +40,22 @@ variable "VPC_NAME" {
   type = string
 }
 
+variable "KUBERNETES_NODE_MACHINE_TYPE" {
+  type = string
+}
+
 variable "KUBERNETES_NAMESPACE" {
   type = string
 }
 
 variable "KUBERNETES_APPLICATION_ID" {
+  type = string
+}
+
+variable "GCR_BUCKET_NAME" {
+  type = string
+}
+
+variable "GCR_REPOSITORY_ID" {
   type = string
 }

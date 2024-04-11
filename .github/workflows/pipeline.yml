@@ -4,36 +4,11 @@ on: push
 
 env:
   GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
-  IMAGE: "parking_application"
-  DEPLOYMENT_NAME: "deploy_test"
+  APPLICATION_NAME: "parking-application"
 
 jobs:
-    application:
-        name: 'Application build and access test'
-        runs-on: ubuntu-latest
-        defaults:
-            run:
-                shell: bash
-        steps:
-        # Build the Docker image of the application
-        - name: Build image
-          run: docker build \
-            --build-arg GITHUB_SHA="$GITHUB_SHA" \
-            --build-arg GITHUB_REF="$GITHUB_REF" \
-            .application/
-
-        # Push the Docker image to Google Container Registry
-        - name: Publish
-          run: docker push "gcr.io/${gcloud config get-value project}/$IMAGE:$GITHUB_SHA"
-        
-        # Quickly install kustomize (~25mb)
-        - name: Install Kustomize
-          run: |-
-            curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
-            chmod u+x ./kustomize
-
     terraform:
-        name: 'Terraform integrity test'
+        name: 'Terraform test'
         environment: 'dev'
         runs-on: ubuntu-latest
         defaults:
@@ -70,13 +45,40 @@ jobs:
               shell: bash
         steps:
         # Terraform apply
-        - name: Terraform apply
+        - id: terraform-apply
+          name: Terraform apply
           run: terraform apply -auto-approve -input=false
         
-        # Deploy application
-        - name: Deploy application
-          run: |-
-            ./kustomize edit set image gcr.io/PROJECT_ID/IMAGE:TAG=gcr.io/${gcloud config get-value project}/$IMAGE:$GITHUB_SHA
-            ./kustomize build . | kubectl apply -f -
-            kubectl rollout status deployment/$DEPLOYMENT_NAME
-            kubectl get services -o wide
+        # Terraform outputs
+        - id: terraform-outputs
+          name: Terraform outputs
+          run: |
+            echo "ARTIFACT_REGISTRY=$(terraform output -raw artifact_registry_id)" >> $GITHUB_OUTPUT
+          working-directory: ./terraform
+      
+    application:
+        name: 'Deploy application'
+        runs-on: ubuntu-latest
+        environment: 'dev'
+        needs: [ deploy ]
+        defaults:
+            run:
+                shell: bash
+        steps:
+        # Build the Docker image of the application
+        - name: Build image
+          run: docker build . \
+            -t ${{ env.APPLICATION_NAME }} \
+            --build-arg GITHUB_SHA="$GITHUB_SHA" \
+            --build-arg GITHUB_REF="$GITHUB_REF"
+          working-directory: ./app
+
+        # Push the Docker image to Google Container Registry
+        - name: Publish
+          run: docker push ${{ steps.terraform_outputs.outputs.ARTIFACT_REGISTRY }}
+        
+        # Quickly install kustomize (~25mb)
+        - name: Install Kustomize
+          run: |
+            curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
+            chmod u+x ./kustomize

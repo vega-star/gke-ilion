@@ -5,6 +5,12 @@ variable "PROJECT_ID" {
   default = "ilion-demo"
 }
 
+variable "SELECTED_LOCATION" {
+  type = string
+  description = "General location used in some resources. Not necessarily tied to resources in selected region."
+  default = "US"
+}
+
 variable "SELECTED_REGION" {
   type = string
   description = "Main region of the project, on which most resources will be located at."
@@ -14,7 +20,6 @@ variable "SELECTED_REGION" {
 variable "TF_SERVICE_ACCOUNT_ID" {
   type = string
   description = "ID of the service account used by terraform to deploy resources."
-  default = "tf_sa_id"
   sensitive = true
 }
 
@@ -61,6 +66,12 @@ variable "VPC_NAME" {
 }
 
 // KUBERNETES
+variable "KUBERNETES_NODE_MACHINE_TYPE" {
+  type = string
+  description = "The machine type/size for each node in the main cluster"
+  default = "e2-small"
+}
+
 variable "KUBERNETES_NAMESPACE" {
   type = string
   description = "Namspace used by the kubernetes cluster configuration"
@@ -71,4 +82,16 @@ variable "KUBERNETES_APPLICATION_ID" {
   type = string
   description = "Name of the application that can be used to identify the service"
   default = "parking-application"
+}
+
+variable "GCR_BUCKET_NAME" {
+  type = string
+  description = "The name of the bucket on which GCR will store data"
+  default = "ilion-demo-gcr-bucket"
+}
+
+variable "GCR_REPOSITORY_ID" {
+  type = string
+  description = "The name/ID of the repository for the service on GKE"
+  default = "ilion-repo"
 }
