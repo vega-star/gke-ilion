@@ -1,9 +1,6 @@
 name: 'Clear deployments'
 
-on: 
-    pull_request:
-        types:
-        - closed
+on: [workflow_call, push]
 
 jobs:
     cleanup:
@@ -11,7 +8,15 @@ jobs:
         permissions: write-all
 
         steps:
-            - name: Delete deployments on dev
+            - name: Get GitHub App token
+              uses: navikt/github-app-token-generator@a3831f44404199df32d8f39f7c0ad9bb8fa18b1c
+              id: get-token
+              with:
+                app-id: ${{ secrets.GH_APP_ID }}
+                private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
+            - id: cleanup_dev
+              name: Delete deployments on dev
               uses: strumwolf/delete-deployment-environment@v3.0.0
               with:
                 token: ${{ secrets.GITHUB_TOKEN }}

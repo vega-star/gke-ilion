@@ -52,7 +52,7 @@ variable "KUBERNETES_APPLICATION_ID" {
   type = string
 }
 
-variable "GCR_BUCKET_NAME" {
+variable "TF_SOURCE_BUCKET" {
   type = string
 }
 

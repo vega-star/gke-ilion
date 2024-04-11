@@ -29,7 +29,8 @@ variable "USED_API_LIST" {
   default = [
     "compute.googleapis.com",
     "containerregistry.googleapis.com",
-    "container.googleapis.com"
+    "container.googleapis.com",
+    "iam.googleapis.com"
   ]
 }
 
@@ -84,10 +85,10 @@ variable "KUBERNETES_APPLICATION_ID" {
   default     = "parking-application"
 }
 
-variable "GCR_BUCKET_NAME" {
+variable "TF_SOURCE_BUCKET" {
   type        = string
   description = "The name of the bucket on which GCR will store data"
-  default     = "ilion-demo-gcr-bucket"
+  default     = "tf-source-data"
 }
 
 variable "GCR_REPOSITORY_ID" {
