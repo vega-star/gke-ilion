@@ -21,19 +21,22 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v4.1.1
         
+        # Log in with secret
+        - id: 'auth'
+          name: 'Authenticate to Google Cloud'
+          uses: 'google-github-actions/auth@v2'
+          with:
+            credentials_json: '${{ env.GOOGLE_APPLICATION_CREDENTIALS }}'
+        
+        # Download .tfvars from a secure place
+        - name: Download tfvars
+          run: gsutil cp gs://tf-source-data/terraform.tfvars .
+        
         # Setup Terraform into the runner
         - name: Setup terraform
           uses: hashicorp/setup-terraform@v1
           with:
             terraform_wrapper: false
-        
-        # Catch .tfvars from a secure source
-        - name: Catch secure variables
-          run: |
-            cat > terraform.tfvars << EOF
-            "${{ secrets.TF_VARS }}"
-            EOF
-            cat terraform.tfvars
 
         # Initialize Terraform
         - name: Terraform init
