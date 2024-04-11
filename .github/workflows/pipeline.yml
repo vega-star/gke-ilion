@@ -37,7 +37,7 @@ jobs:
         # Iterate through each variable on secret tfvars and reformat data if needed
         - name: Variable iteration
           run: |
-            for v in ${{ secrets.TF_VARS }}; do echo $v >> terraform.tfvars; do
+            for v in "${{ secrets.TF_VARS }}"; do echo $v >> terraform.tfvars; do
             cat terraform.tfvars
         
         # Initialize Terraform
