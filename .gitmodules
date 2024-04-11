@@ -1,3 +1,0 @@
-[submodule "app/parking-application"]
-	path = app/parking-application
-	url = https://github.com/KaysonN/parking-application.git
