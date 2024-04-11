@@ -128,13 +128,24 @@ jobs:
             run:
                 shell: bash
         steps:
+        # Checkout repo to Github Actions runner
+        - name: Checkout
+          uses: actions/checkout@v4.1.1
+        
+        # Log in with secret
+        - id: 'auth'
+          name: 'Authenticate to Google Cloud'
+          uses: 'google-github-actions/auth@v2'
+          with:
+            credentials_json: '${{ env.GOOGLE_APPLICATION_CREDENTIALS }}'
+        
         # Build the Docker image of the application
         - name: Build image
           run: docker build . \
             -t ${{ env.APPLICATION_NAME }} \
             --build-arg GITHUB_SHA="$GITHUB_SHA" \
             --build-arg GITHUB_REF="$GITHUB_REF"
-          working-directory: ./app
+          working-directory: ./app/${{ env.APPLICATION_NAME }}
 
         # Configure local Docker client
         - name: Configure Docker
@@ -155,6 +166,17 @@ jobs:
           run:
               shell: bash
         steps:
+        # Checkout repo to Github Actions runner
+        - name: Checkout
+          uses: actions/checkout@v4.1.1
+        
+        # Log in with secret
+        - id: 'auth'
+          name: 'Authenticate to Google Cloud'
+          uses: 'google-github-actions/auth@v2'
+          with:
+            credentials_json: '${{ env.GOOGLE_APPLICATION_CREDENTIALS }}'
+
         # Catch existing cluster
         - name: Catch existing cluster
           run: gcloud container clusters get-credentials ${{ steps.terraform_outputs.outputs.MAIN_GKE_CLUSTER }} --location ${{ env.DEFAULT_REGION }}
