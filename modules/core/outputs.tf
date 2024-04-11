@@ -1,7 +1,3 @@
-output "load-balancer-ip" {
-  value = google_compute_address.service-ip.address
-}
-
 output "main_gke_cluster" {
   value = google_container_cluster.main_cluster.name
 }

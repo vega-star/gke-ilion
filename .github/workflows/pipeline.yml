@@ -113,12 +113,13 @@ jobs:
         # Terraform outputs
         - id: terraform-outputs
           name: Terraform outputs
-          if: success() || failure()
+          if: always()
           run: |
             echo "ARTIFACT_REGISTRY=$(terraform output -raw artifact-registry-path)" >> $GITHUB_OUTPUT
             echo "SHORT_ARTIFACT_REGISTRY=$(terraform output -raw artifact-registry-short-path)" >> $GITHUB_OUTPUT
             echo "MAIN_GKE_CLUSTER=$(terraform output -raw main_gke_cluster)" >> $GITHUB_OUTPUT
           working-directory: .terraform
+          
       
     application:
         name: 'Load application'
