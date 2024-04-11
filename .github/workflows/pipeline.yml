@@ -1,6 +1,6 @@
 name: 'Main pipeline'
 
-on: push
+on: [workflow_call, push]
 
 env:
   TF_VARS: ${{ secrets.TF_VARS }}
@@ -28,16 +28,18 @@ jobs:
           with:
             credentials_json: '${{ env.GOOGLE_APPLICATION_CREDENTIALS }}'
         
-        # Download .tfvars from a secure place
-        - name: Download tfvars
-          run: gsutil cp gs://tf-source-data/terraform.tfvars .
-        
         # Setup Terraform into the runner
         - name: Setup terraform
           uses: hashicorp/setup-terraform@v1
           with:
             terraform_wrapper: false
 
+        # Iterate through each variable on secret tfvars and reformat data if needed
+        - name: Variable iteration
+          run: |
+            for v in ${{ secrets.TF_VARS }}; do echo $v >> terraform.tfvars; do
+            cat terraform.tfvars
+        
         # Initialize Terraform
         - name: Terraform init
           run: terraform init
@@ -56,7 +58,7 @@ jobs:
 
         # Terraform plan
         - name: Terraform plan
-          run: terraform plan
+          run: terraform plan -input=false --var-file=terraform.tfvars
     
     infrastructure:
         name: 'Deploy infrastructure'
@@ -102,7 +104,7 @@ jobs:
         - name: Configure Docker
           run: gcloud auth configure-docker ${{ steps.terraform_outputs.outputs.SHORT_ARTIFACT_REGISTRY }}
         
-        # Push the Docker image to Google Container Registry
+        # Push the Docker image to Artifact Registry
         - name: Publish
           run: |
             docker tag ${{ env.APPLICATION_NAME }} ${{ steps.terraform_outputs.outputs.ARTIFACT_REGISTRY }}/${{ env.APPLICATION_NAME }}
