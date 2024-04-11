@@ -26,10 +26,6 @@ jobs:
           uses: hashicorp/setup-terraform@v1
           with:
             terraform_wrapper: false
-        
-        # Add .tfvars to the process
-        - name: Add tfvars
-          run: cat ${{ env.TF_VARS }} > terraform.tfvars
 
         # Initialize Terraform
         - name: Terraform init
@@ -41,7 +37,7 @@ jobs:
         
         # Terraform plan
         - name: Terraform plan
-          run: terraform plan --var-file=terraform.tfvars
+          run: terraform plan --var-file=${{ env.TF_VARS }}.tfvars
     
     infrastructure:
         name: 'Deploy infrastructure'
