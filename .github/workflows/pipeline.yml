@@ -29,9 +29,8 @@ jobs:
         
         # Add .tfvars to the process
         - name: Add secret variables
-          run: cat > terraform.tfvars << EOF \
-            "${{ env.TF_VARS }}" \
-            EOF
+          run: |
+            echo -e "${{ env.TF_VARS }}" >> terraform.tfvars
             cat terraform.tfvars
 
         # Initialize Terraform

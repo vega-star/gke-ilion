@@ -15,6 +15,8 @@ So, the logical route would be:
 1. Upload and store the third-party application in Container Registry, so we can version control the application both directly from the pipeline and the GCP console. The application will be built as a container by the workflow and uploaded with tags tracing the commit.
 2. The main pipeline is triggered each time the repo recieves a push, but further actions such as `terraform apply` and `kubectl rollout` will have to wait for manual action in the repo. This is useful to prevent additional costs, or even any cost at all.
 3. Deploy a GKE cluster with the service connected to the application, with external application load balancer configured. All of the cluster configuration will be stored in Terraform.
+4. Deploy the desired database via Terraform and provide the connection means to the application pods.
+5. Create an service account with needed permissions granted and use to process everything at once.
 
 ## Application
 
